@@ -16,6 +16,7 @@ using namespace sdaa;
 extern "C" size_t find_device(const char *addr, uint32_t *result, size_t max_n, int16_t local_port);
 extern "C" bool make_device(const char *addr, int16_t local_port);
 extern "C" bool unmake_device(const char *addr, int16_t local_port);
+extern "C" bool start_stream(const char *addr, int16_t local_port);
 
 constexpr int16_t local_port = 3002;
 using namespace std;
@@ -47,6 +48,7 @@ namespace YAML
                 payload_node.push_back(node1);
             }
             node["payload"] = payload_node;
+            return node;
         }
 
         static bool decode(const Node &node, SdaaCfg &rhs)
@@ -93,7 +95,7 @@ public:
 
     ~SdaaSDR()
     {
-        unmake_device(cfg.ctrl_ip.c_str(), 3001);
+        assert(unmake_device(cfg.ctrl_ip.c_str(), 3001));
     }
 
 public:
@@ -203,7 +205,10 @@ public:
         const size_t numElems = 0)
     {
         device_handler->start();
-        device_handler->pop_ddc(ptr_buffer);
+        assert(start_stream(cfg.ctrl_ip.c_str(), 3001));
+        while(!device_handler->pop_ddc(ptr_buffer)){
+            std::this_thread::yield();
+        }
         return 0;
     }
 
@@ -215,6 +220,7 @@ public:
         device_handler->stop();
         device_handler->push_free_ddc(ptr_buffer);
         ptr_buffer=nullptr;
+        return 0;
     }
 
     size_t getStreamMTU(Stream *stream) const
@@ -233,6 +239,7 @@ public:
         size_t n_to_copy = numElems;
         while (n_to_copy > 0)
         {
+            std::cout<<offset<<" "<<n_to_copy<<std::endl;
             size_t navail = ptr_buffer->size() - offset;
             size_t n_to_copy1 = std::min(navail, n_to_copy);
             if (n_to_copy1 > 0)
@@ -245,6 +252,8 @@ public:
             if (offset == ptr_buffer->size())
             {
                 offset = 0;
+                device_handler->push_free_ddc(ptr_buffer);
+
                 while(!device_handler->pop_ddc(ptr_buffer)){
                     std::this_thread::yield();
                 }
@@ -302,6 +311,7 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
         std::cout << ip_str << std::endl;
         SoapySDR::Kwargs args1;
         args1["addr"] = ip_str;
+        args1["cfg"]=cfg_file;
         kwl.push_back(args1);
     }
     std::cout << "kwl size=" << kwl.size() << std::endl;
