@@ -1,7 +1,7 @@
 all: libsdaa.so test_data_recv test_soapy
 
 LIBS=-lSoapySDR -lyaml-cpp -lcudart ../sdaa_ctrl/target/release/libsdaa_ctrl.a
-CFLAGS="-g"
+CFLAGS=-g
 
 sdaa_data.o: sdaa_data.cpp
 	g++ --std=c++23 -c $< -o $@ -O3 $(CFLAGS)
@@ -20,9 +20,6 @@ libsdaa.so: sdaa.o ddc_kernel.o sdaa_data.o
 
 test_data_recv: test_data_recv.o ddc_kernel.o sdaa_data.o
 	g++ $^ -o $@ -O3 $(LIBS)
-
-test_soapy: test_soapy.o
-	g++ $< -o $@ -O3 $(LIBS)
 
 test_soapy: test_soapy.o
 	g++ $< -o $@ -O3 $(LIBS)
