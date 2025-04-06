@@ -3,6 +3,7 @@
 #include <SoapySDR/Types.hpp>
 #include <SoapySDR/Formats.h>
 #include <yaml-cpp/yaml.h>
+#include <yaml-cpp/exceptions.h>
 #include <iostream>
 #include <cstdint>
 #include <memory>
@@ -112,9 +113,34 @@ public:
         return cfg.ctrl_ip;
     }
 
+    Kwargs getHardwareInfo(void) const
+    {
+        Kwargs result;
+        result["vendor"] = "naoc";
+        result["smp rate"] = "480E6 Sps";
+        return result;
+    }
+
+    void setFrontendMapping(const int direction, const std::string &mapping)
+    {
+    }
+
     size_t getNumChannels(const int direction) const
     {
         return direction == SOAPY_SDR_RX ? cfg.payload.size() : 0;
+    }
+
+    Kwargs getChannelInfo(const int direction, const size_t channel) const
+    {
+        Kwargs result;
+        result["Num"]="4";
+        result["max input voltage"]="1 Vpp";
+
+        return result;
+    }
+
+    bool getFullDuplex(const int direction, const size_t channel) const{
+        return false;
     }
 
     std::vector<std::string> getStreamFormats(const int direction, const size_t channel) const
@@ -309,9 +335,10 @@ public:
 
         for (int i = 0; i < numElems; ++i)
         {
-            auto& x = ((std::complex<float> *)buffs[0])[i];
-            if(std::abs(x)>1e9){
-                x=0.0;
+            auto &x = ((std::complex<float> *)buffs[0])[i];
+            if (std::abs(x) > 1e9)
+            {
+                x = 0.0;
             }
         }
         return numElems;
@@ -345,10 +372,18 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
     }
     else
     {
-        return kwl;
+        cfg_file = "./cfg.yaml";
     }
 
-    SdaaCfg cfg = YAML::LoadFile(cfg_file).as<SdaaCfg>();
+    SdaaCfg cfg;
+    try
+    {
+        cfg = YAML::LoadFile(cfg_file).as<SdaaCfg>();
+    }
+    catch (const YAML::BadFile &e)
+    {
+        return kwl;
+    }
 
     std::string addr = cfg.ctrl_ip;
 
@@ -388,8 +423,18 @@ SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
     }
     // create an instance of the device object given the args
     // here we will translate args into something used in the constructor
-    assert(args.count("cfg") > 0);
-    auto cfg_file = args.find("cfg")->second;
+
+    auto iter = args.find("cfg");
+    const char *cfg_file = nullptr;
+    if (iter != args.end())
+    {
+        cfg_file = iter->second.c_str();
+    }
+    else
+    {
+        cfg_file = "./cfg.yaml";
+    }
+
     SdaaCfg cfg = YAML::LoadFile(cfg_file).as<SdaaCfg>();
     return new SdaaSDR(cfg);
 }
@@ -397,4 +442,4 @@ SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
 /***********************************************************************
  * Registration
  **********************************************************************/
-static SoapySDR::Registry registerSdaaSDR("sdaa_sdr", &findSdaaSDR, &makeSdaaSDR, SOAPY_SDR_ABI_VERSION);
+static SoapySDR::Registry registerSdaaSDR("sdaa", &findSdaaSDR, &makeSdaaSDR, SOAPY_SDR_ABI_VERSION);
