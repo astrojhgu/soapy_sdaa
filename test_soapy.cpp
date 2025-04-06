@@ -13,7 +13,7 @@ int main()
     // List all BB60C devices
 
     Kwargs args;
-    args["driver"] = "sdaa_sdr";
+    args["driver"] = "sdaa";
     args["cfg"] = "cfg.yaml";
 
     SoapySDR::KwargsList bbDevices = SoapySDR::Device::enumerate(args);
@@ -30,6 +30,7 @@ int main()
     Kwargs stream_args;
     stream_args["lo_ch"] = "885";
     std::unique_ptr<SoapySDR::Device> sdr = std::unique_ptr<SoapySDR::Device>(SoapySDR::Device::make(bbDevices[0]));
+    
 
     SoapySDR::Stream *rx_stream = sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32, std::vector<size_t>{0}, stream_args);
     sdr->setFrequency(1, 0, 100e6);

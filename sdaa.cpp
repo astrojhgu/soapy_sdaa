@@ -76,7 +76,7 @@ class SdaaSDR : public SoapySDR::Device
 {
 private:
     SdaaCfg cfg;
-    int64_t lo_ch;
+    // int64_t lo_ch;
     uint32_t stream_handler;
     std::unique_ptr<SdaaReceiver> device_handler;
     std::vector<std::complex<float>> *ptr_buffer;
@@ -86,7 +86,7 @@ public:
     // Implement constructor with device specific arguments...
     SdaaSDR() = default;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), stream_handler(0), lo_ch(0), device_handler(make_unique<SdaaReceiver>(std::get<0>(cfg.payload[0]), std::get<1>(cfg.payload[0]), 8192, 8, fir_coeffs())), ptr_buffer(nullptr)
+        : SoapySDR::Device(), cfg(cfg1), stream_handler(0), device_handler(make_unique<SdaaReceiver>(std::get<0>(cfg.payload[0]), std::get<1>(cfg.payload[0]), 8192, 8, fir_coeffs())), ptr_buffer(nullptr)
     {
         std::cout << "init" << std::endl;
         assert(make_device(cfg.ctrl_ip.c_str(), 3001));
@@ -133,13 +133,14 @@ public:
     Kwargs getChannelInfo(const int direction, const size_t channel) const
     {
         Kwargs result;
-        result["Num"]="4";
-        result["max input voltage"]="1 Vpp";
+        result["Num"] = "4";
+        result["max input voltage"] = "1 Vpp";
 
         return result;
     }
 
-    bool getFullDuplex(const int direction, const size_t channel) const{
+    bool getFullDuplex(const int direction, const size_t channel) const
+    {
         return false;
     }
 
@@ -184,8 +185,12 @@ public:
 
     void setFrequency(const int direction, const size_t channel, const double frequency, const Kwargs &args = Kwargs())
     {
+        std::cout << "=================================" << std::endl;
+        std::cout << "new freq:" << frequency << std::endl;
         int idx = frequency / 240e6 * 2048;
         device_handler->set_lo_ch(idx);
+        std::cout << "lo ch:" << device_handler->get_lo_ch() << std::endl;
+        std::cout << "=================================" << std::endl;
     }
 
     double getFrequency(const int direction, const size_t channel) const
@@ -231,6 +236,12 @@ public:
         const std::vector<size_t> &channels = std::vector<size_t>(),
         const Kwargs &args = Kwargs())
     {
+        std::cout << "==========================" << std::endl;
+        for (auto &i : args)
+        {
+            std::cout << i.first << " : " << i.second << std::endl;
+        }
+        std::cout << "==========================" << std::endl;
         if (direction == SOAPY_SDR_TX)
         {
             throw std::runtime_error("sdaa is RX only, use SOAPY_SDR_RX");
@@ -242,18 +253,13 @@ public:
         }
 
         auto iter = args.find("lo_ch");
-        if (iter == args.end())
+        if (iter != args.end())
         {
-            std::cout << "lo ch not given, use default value 1024" << std::endl;
-            lo_ch = 1024;
+            // std::cout << "lo ch not given, use default value 1024" << std::endl;
+            device_handler->set_lo_ch(atoi(iter->second.c_str()));
+
             // throw std::runtime_error("lo_ch not given");
         }
-        else
-        {
-            lo_ch = atoi(iter->second.c_str());
-        }
-
-        device_handler->set_lo_ch(lo_ch);
 
         return (Stream *)this;
     }
@@ -271,6 +277,11 @@ public:
             std::this_thread::yield();
         }
         return 0;
+    }
+
+    void closeStream(Stream *stream)
+    {
+        deactivateStream(stream, 0, 0);
     }
 
     int deactivateStream(
@@ -342,6 +353,59 @@ public:
             }
         }
         return numElems;
+    }
+
+    std::vector<std::string> listAntennas(const int direction, const size_t channel) const
+    {
+        if (direction == SOAPY_SDR_RX)
+        {
+            return std::vector<std::string>{"EXT"};
+        }
+        else
+        {
+            return std::vector<std::string>();
+        }
+    }
+
+    void setAntenna(const int direction, const size_t channel, const std::string &name)
+    {
+    }
+
+    std::string getAntenna(const int direction, const size_t channel) const
+    {
+        return std::string("EXT");
+    }
+
+    bool hasDCOffsetMode(const int direction, const size_t channel) const
+    {
+        return false;
+    }
+
+    std::vector<std::string> listGains(const int direction, const size_t channel) const
+    {
+        return std::vector<std::string>{"TOTAL"};
+    }
+
+    double getGain(const int direction, const size_t channel) const
+    {
+        return 0.0;
+    }
+
+    double getGain(const int direction, const size_t channel, const std::string &name) const
+    {
+        return 0.0;
+    }
+
+    SoapySDR::Range getGainRange(const int direction, const size_t channel) const
+    {
+        SoapySDR::Range r(0.0, 0.0, 0.0);
+        return r;
+    }
+
+    SoapySDR::Range getGainRange(const int direction, const size_t channel, const std::string &name) const
+    {
+        SoapySDR::Range r(0.0, 0.0, 0.0);
+        return r;
     }
 };
 
@@ -436,6 +500,7 @@ SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
     }
 
     SdaaCfg cfg = YAML::LoadFile(cfg_file).as<SdaaCfg>();
+
     return new SdaaSDR(cfg);
 }
 
