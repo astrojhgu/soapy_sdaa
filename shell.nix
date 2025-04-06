@@ -16,6 +16,10 @@ pkgs.mkShell {
      soapysdr
      yaml-cpp
      pkg-config
+     gnuradio
+     gqrx
+     sdrangel
+     sigdigger
    ];
    shellHook = ''
       export CUDA_PATH=${pkgs.cudatoolkit}

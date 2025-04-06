@@ -78,7 +78,7 @@ private:
     int64_t lo_ch;
     uint32_t stream_handler;
     std::unique_ptr<SdaaReceiver> device_handler;
-    std::vector<std::complex<float>>* ptr_buffer;
+    std::vector<std::complex<float>> *ptr_buffer;
     size_t offset{0};
 
 public:
@@ -89,12 +89,15 @@ public:
     {
         std::cout << "init" << std::endl;
         assert(make_device(cfg.ctrl_ip.c_str(), 3001));
-        
+
         offset = device_handler->calc_output_size();
     }
 
     ~SdaaSDR()
     {
+        deactivateStream(
+            (Stream *)this,
+            0, 0);
         assert(unmake_device(cfg.ctrl_ip.c_str(), 3001));
     }
 
@@ -136,17 +139,43 @@ public:
         return SoapySDR::RangeList{r};
     }
 
+    SoapySDR::RangeList getBandwidthRange(const int direction, const size_t channel) const
+    {
+        SoapySDR::Range r(60e6, 60e6, 0);
+        return SoapySDR::RangeList{r};
+    }
+
+    void setBandwidth(const int direction, const size_t channel, const double bw)
+    {
+    }
+
+    double getBandwidth(const int direction, const size_t channel) const
+    {
+        return 60e6;
+    }
+
     // Implement all applicable virtual methods from SoapySDR::Device
 
     void setFrequency(const int direction, const size_t channel, const double frequency, const Kwargs &args = Kwargs())
     {
         int idx = frequency / 240e6 * 2048;
+        device_handler->set_lo_ch(idx);
+    }
+
+    double getFrequency(const int direction, const size_t channel) const
+    {
+        return device_handler->get_lo_ch() * 240e6 / 2048;
     }
 
     SoapySDR::RangeList getSampleRateRange(const int direction, const size_t channel) const
     {
         SoapySDR::Range r(60e6, 60e6, 0);
         return SoapySDR::RangeList{r};
+    }
+
+    double getSampleRate(const int direction, const size_t channel) const
+    {
+        return 60e6;
     }
 
     SoapySDR::ArgInfoList getStreamArgsInfo(const int direction, const size_t channel)
@@ -189,9 +218,14 @@ public:
         auto iter = args.find("lo_ch");
         if (iter == args.end())
         {
-            throw std::runtime_error("lo_ch not given");
+            std::cout << "lo ch not given, use default value 1024" << std::endl;
+            lo_ch = 1024;
+            // throw std::runtime_error("lo_ch not given");
         }
-        lo_ch = atoi(iter->second.c_str());
+        else
+        {
+            lo_ch = atoi(iter->second.c_str());
+        }
 
         device_handler->set_lo_ch(lo_ch);
 
@@ -206,7 +240,8 @@ public:
     {
         device_handler->start();
         assert(start_stream(cfg.ctrl_ip.c_str(), 3001));
-        while(!device_handler->pop_ddc(ptr_buffer)){
+        while (!device_handler->pop_ddc(ptr_buffer))
+        {
             std::this_thread::yield();
         }
         return 0;
@@ -219,7 +254,7 @@ public:
     {
         device_handler->stop();
         device_handler->push_free_ddc(ptr_buffer);
-        ptr_buffer=nullptr;
+        ptr_buffer = nullptr;
         return 0;
     }
 
@@ -239,7 +274,6 @@ public:
         size_t n_to_copy = numElems;
         while (n_to_copy > 0)
         {
-            std::cout<<offset<<" "<<n_to_copy<<std::endl;
             size_t navail = ptr_buffer->size() - offset;
             size_t n_to_copy1 = std::min(navail, n_to_copy);
             if (n_to_copy1 > 0)
@@ -248,15 +282,36 @@ public:
                 n_to_copy -= n_to_copy1;
                 offset += n_to_copy1;
             }
-            assert(offset<=ptr_buffer->size());
+            assert(offset <= ptr_buffer->size());
             if (offset == ptr_buffer->size())
             {
                 offset = 0;
                 device_handler->push_free_ddc(ptr_buffer);
 
-                while(!device_handler->pop_ddc(ptr_buffer)){
+                while (!device_handler->pop_ddc(ptr_buffer))
+                {
                     std::this_thread::yield();
                 }
+            }
+        }
+
+        for (int i = 0; i < numElems; ++i)
+        {
+
+            // assert(!(std::isnan(x.real())||std::isnan(x.imag())));
+            ((std::complex<float> *)buffs[0])[i] /= 50.0;
+            auto x = ((std::complex<float> *)buffs[0])[i];
+            if (!std::isnormal(x.real()) || !std::isnormal(x.imag()))
+            {
+                ((std::complex<float> *)buffs[0])[i] = std::complex<float>(1e-5, 1e-5);
+            }
+        }
+
+        for (int i = 0; i < numElems; ++i)
+        {
+            auto& x = ((std::complex<float> *)buffs[0])[i];
+            if(std::abs(x)>1e9){
+                x=0.0;
             }
         }
         return numElems;
@@ -311,7 +366,7 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
         std::cout << ip_str << std::endl;
         SoapySDR::Kwargs args1;
         args1["addr"] = ip_str;
-        args1["cfg"]=cfg_file;
+        args1["cfg"] = cfg_file;
         kwl.push_back(args1);
     }
     std::cout << "kwl size=" << kwl.size() << std::endl;

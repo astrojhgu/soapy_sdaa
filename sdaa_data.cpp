@@ -35,6 +35,11 @@ namespace sdaa
         lo_ch_ = lo_ch;
     }
 
+    int32_t SdaaReceiver::get_lo_ch()const
+    {
+        return lo_ch_.load();
+    }
+
     void SdaaReceiver::init_free_payload_queue()
     {
         for (size_t i = 0; i < QUEUE_CAPACITY; ++i)
@@ -46,7 +51,7 @@ namespace sdaa
     void SdaaReceiver::init_free_ddc_queue()
     {
         size_t n_out = calc_output_size();
-        for (size_t i = 0; i < 8; ++i)
+        for (size_t i = 0; i < 32; ++i)
         {
             free_ddc_queue_.push(ddc_pool_.construct(n_out));
         }

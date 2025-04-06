@@ -32,7 +32,8 @@ int main()
     std::unique_ptr<SoapySDR::Device> sdr = std::unique_ptr<SoapySDR::Device>(SoapySDR::Device::make(bbDevices[0]));
 
     SoapySDR::Stream *rx_stream = sdr->setupStream(SOAPY_SDR_RX, SOAPY_SDR_CF32, std::vector<size_t>{0}, stream_args);
-    size_t NUM_SAMPLES = 65536*128+32;
+    sdr->setFrequency(1, 0, 100e6);
+    size_t NUM_SAMPLES = 65536*64;
     std::vector<std::complex<float>> buff(NUM_SAMPLES);
 
     void *buffs[] = {buff.data()};
@@ -41,7 +42,7 @@ int main()
     assert(sdr->activateStream(rx_stream, 0, 0, 0) == 0);
 
     ofstream ofs("a.bin");
-    for(int i=0;i<10;++i)
+    for (int i = 0; i < 100; ++i)
     {
         sdr->readStream(
             rx_stream,
@@ -51,6 +52,8 @@ int main()
             timeNs,
             0);
 
-        ofs.write((const char*)buff.data(), sizeof(float)*2*buff.size());
+        ofs.write((const char *)buff.data(), sizeof(float) * 2 * buff.size());
     }
+
+    sdr->deactivateStream(nullptr, 0,0);
 }

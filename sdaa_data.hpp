@@ -54,6 +54,7 @@ namespace sdaa
 
         bool is_running() const;
         void set_lo_ch(int32_t);
+        int32_t get_lo_ch()const;
 
         void start();
         void stop();
@@ -71,7 +72,7 @@ namespace sdaa
         DdcQueue free_ddc_queue_;
 
         std::atomic<bool> running_{false};
-        std::atomic<int32_t> lo_ch_{0};
+        std::atomic<int32_t> lo_ch_{1024};
         boost::object_pool<sdaa::Payload> payload_pool_;
         boost::object_pool<std::vector<std::complex<float>>> ddc_pool_;
         boost::asio::io_context io_context_;
