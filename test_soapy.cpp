@@ -56,5 +56,5 @@ int main()
         ofs.write((const char *)buff.data(), sizeof(float) * 2 * buff.size());
     }
 
-    sdr->deactivateStream(nullptr, 0,0);
+    //sdr->deactivateStream(nullptr, 0,0);
 }

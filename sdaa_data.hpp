@@ -81,7 +81,8 @@ namespace sdaa
     };
 
 
-    std::vector<float> fir_coeffs();
+    std::vector<float> fir_coeffs_quarter();
+    std::vector<float> fir_coeffs_half();
 }
 
 #endif

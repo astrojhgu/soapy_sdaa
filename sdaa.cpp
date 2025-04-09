@@ -86,7 +86,7 @@ public:
     // Implement constructor with device specific arguments...
     SdaaSDR() = default;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), stream_handler(0), device_handler(make_unique<SdaaReceiver>(std::get<0>(cfg.payload[0]), std::get<1>(cfg.payload[0]), 8192, 8, fir_coeffs())), ptr_buffer(nullptr)
+        : SoapySDR::Device(), cfg(cfg1), stream_handler(0), device_handler(make_unique<SdaaReceiver>(std::get<0>(cfg.payload[0]), std::get<1>(cfg.payload[0]), 8192, 4, fir_coeffs_half())), ptr_buffer(nullptr)
     {
         std::cout << "init" << std::endl;
         assert(make_device(cfg.ctrl_ip.c_str(), 3001));
@@ -168,7 +168,7 @@ public:
 
     SoapySDR::RangeList getBandwidthRange(const int direction, const size_t channel) const
     {
-        SoapySDR::Range r(60e6, 60e6, 0);
+        SoapySDR::Range r(120e6, 120e6, 0);
         return SoapySDR::RangeList{r};
     }
 
@@ -178,7 +178,7 @@ public:
 
     double getBandwidth(const int direction, const size_t channel) const
     {
-        return 60e6;
+        return 120e6;
     }
 
     // Implement all applicable virtual methods from SoapySDR::Device
@@ -200,13 +200,13 @@ public:
 
     SoapySDR::RangeList getSampleRateRange(const int direction, const size_t channel) const
     {
-        SoapySDR::Range r(60e6, 60e6, 0);
+        SoapySDR::Range r(120e6, 120e6, 0);
         return SoapySDR::RangeList{r};
     }
 
     double getSampleRate(const int direction, const size_t channel) const
     {
-        return 60e6;
+        return 120e6;
     }
 
     SoapySDR::ArgInfoList getStreamArgsInfo(const int direction, const size_t channel)
@@ -347,8 +347,9 @@ public:
         for (int i = 0; i < numElems; ++i)
         {
             auto &x = ((std::complex<float> *)buffs[0])[i];
-            if (std::abs(x) > 1e9)
+            if (std::abs(x) > 10e9)
             {
+	            //std::cout<<"x"<<std::endl;
                 x = 0.0;
             }
         }

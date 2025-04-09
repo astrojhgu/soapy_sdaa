@@ -18,6 +18,7 @@ pkgs.mkShell {
      pkg-config
      gnuradio
      gqrx
+     quisk
      sdrangel
      sigdigger
      sdrpp
