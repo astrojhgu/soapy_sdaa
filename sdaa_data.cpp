@@ -16,7 +16,7 @@ namespace sdaa
         try
         {
             socket_.set_option(
-                boost::asio::socket_base::receive_buffer_size(1024 * 1024 * 100));
+                boost::asio::socket_base::receive_buffer_size(1024 * 1024 * 1024));
         }
         catch (const std::exception &e)
         {
