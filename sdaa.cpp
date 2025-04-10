@@ -27,6 +27,7 @@ struct SdaaCfg
 {
     std::string ctrl_ip;
     uint16_t ctrl_port;
+    uint16_t local_port;
     std::vector<std::tuple<std::string, uint16_t>> payload;
 };
 
@@ -40,6 +41,7 @@ namespace YAML
             Node node;
             node["ctrl_ip"] = rhs.ctrl_ip;
             node["ctrl_port"] = rhs.ctrl_port;
+            node["local_port"] = rhs.local_port;
             Node payload_node;
             for (auto &x : rhs.payload)
             {
@@ -56,6 +58,7 @@ namespace YAML
         {
             rhs.ctrl_ip = node["ctrl_ip"].as<std::string>();
             rhs.ctrl_port = node["ctrl_port"].as<uint16_t>();
+            rhs.local_port = node["local_port"].as<uint16_t>();
             Node payload_node = node["payload"];
             rhs.payload.clear();
             for (int i = 0; i < payload_node.size(); ++i)
@@ -89,7 +92,7 @@ public:
         : SoapySDR::Device(), cfg(cfg1), stream_handler(0), device_handler(make_unique<SdaaReceiver>(std::get<0>(cfg.payload[0]), std::get<1>(cfg.payload[0]), 8192, 4, fir_coeffs_half())), ptr_buffer(nullptr)
     {
         std::cout << "init" << std::endl;
-        assert(make_device(cfg.ctrl_ip.c_str(), 3001));
+        assert(make_device(cfg.ctrl_ip.c_str(), cfg.local_port));
 
         offset = device_handler->calc_output_size();
     }
@@ -99,7 +102,7 @@ public:
         deactivateStream(
             (Stream *)this,
             0, 0);
-        assert(unmake_device(cfg.ctrl_ip.c_str(), 3001));
+        assert(unmake_device(cfg.ctrl_ip.c_str(), cfg.local_port));
     }
 
 public:
@@ -271,7 +274,9 @@ public:
         const size_t numElems = 0)
     {
         device_handler->start();
-        assert(start_stream(cfg.ctrl_ip.c_str(), 3001));
+        std::cout<<"ctrl addr="<<cfg.ctrl_ip<<std::endl;
+        std::cout<<"payload addr="<<std::get<0>(cfg.payload[0])<<std::endl;
+        assert(start_stream(cfg.ctrl_ip.c_str(), cfg.local_port));
         while (!device_handler->pop_ddc(ptr_buffer))
         {
             std::this_thread::yield();
