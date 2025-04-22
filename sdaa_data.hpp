@@ -12,6 +12,7 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/pool/object_pool.hpp>
 #include <ddc.h>
+#include <complex>
 
 namespace sdaa
 {

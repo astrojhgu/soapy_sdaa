@@ -19,7 +19,7 @@ void main_thread(SdaaReceiver &processor)
 
     while (processor.is_running())
     {
-        std::vector<complex<float>> *p = nullptr;
+        std::vector<std::complex<float>> *p = nullptr;
         if (processor.pop_ddc(p))
         {
             process_ddc(p, outfile);
