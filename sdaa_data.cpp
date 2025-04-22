@@ -1,5 +1,5 @@
 #include "sdaa_data.hpp"
-#include "ddc.h"
+#include <ddc.h>
 namespace sdaa
 {
     SdaaReceiver::SdaaReceiver(const std::string &listen_ip, unsigned short port, size_t ddc_batch_num, size_t ndec, std::vector<float> fir_coeffs)
@@ -171,7 +171,7 @@ namespace sdaa
                     {
                         std::this_thread::yield();
                     }
-                    fetch_output(p1->data(), &res_);
+                    fetch_output((fcomplex*)(p1->data()), &res_);
                     ddc_queue_.push(p1);
                 }
                 push_free_payload(p);
