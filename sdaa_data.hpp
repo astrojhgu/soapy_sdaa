@@ -78,6 +78,8 @@ namespace sdaa
         boost::object_pool<std::vector<std::complex<float>>> ddc_pool_;
         boost::asio::io_context io_context_;
         boost::asio::ip::udp::socket socket_;
+        std::thread recv_thread_handler;
+        std::thread ddc_thread_handler;
         DDCResources res_;
     };
 

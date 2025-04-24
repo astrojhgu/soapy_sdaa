@@ -36,7 +36,7 @@ int main()
 {
     try
     {
-        SdaaReceiver processor("192.168.10.10", 3000, 8192, 8, fir_coeffs_quarter());
+        SdaaReceiver processor("192.168.10.10", 3000, 8192, 4, fir_coeffs_half());
         processor.set_lo_ch(885);
 
         // std::thread receiver([&processor]

@@ -5,6 +5,8 @@
 #include <fstream>
 #include <cassert>
 #include <memory>
+#include <chrono>
+#include <thread>
 using namespace std;
 
 using namespace SoapySDR;
@@ -43,7 +45,7 @@ int main()
     assert(sdr->activateStream(rx_stream, 0, 0, 0) == 0);
 
     ofstream ofs("a.bin");
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         sdr->readStream(
             rx_stream,
@@ -55,6 +57,9 @@ int main()
 
         ofs.write((const char *)buff.data(), sizeof(float) * 2 * buff.size());
     }
-
-    //sdr->deactivateStream(nullptr, 0,0);
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(10000ms);
+    sdr->deactivateStream(nullptr, 0,0);
+    std::cerr<<"AAA"<<std::endl;
+    std::this_thread::sleep_for(10000ms);
 }

@@ -9,15 +9,12 @@
 #include <memory>
 #include <format>
 #include <cassert>
+#define USE_CUDA
 
-#include "sdaa_data.hpp"
+#include "sdaa_data.h"
+#include "sdaa_ctrl.h"
 
 using namespace sdaa;
-
-extern "C" size_t find_device(const char *addr, uint32_t *result, size_t max_n, int16_t local_port);
-extern "C" bool make_device(const char *addr, int16_t local_port);
-extern "C" bool unmake_device(const char *addr, int16_t local_port);
-extern "C" bool start_stream(const char *addr, int16_t local_port);
 
 constexpr int16_t local_port = 3002;
 using namespace std;
@@ -25,11 +22,78 @@ using namespace SoapySDR;
 
 struct SdaaCfg
 {
-    std::string ctrl_ip;
+    std::vector<uint32_t> ctrl_ip;
     uint16_t ctrl_port;
     uint16_t local_port;
-    std::vector<std::tuple<std::string, uint16_t>> payload;
+    std::vector<std::tuple<std::vector<uint32_t>, uint16_t>> payload;
 };
+
+uint32_t ip2int(const std::vector<uint32_t> &ip)
+{
+    assert(ip.size() == 4);
+    uint32_t result = 0;
+    for (int i = 0; i < 4; ++i)
+    {
+        result <<= 8;
+        result += ip[i];
+    }
+    return result;
+}
+
+std::vector<uint32_t> int2ip(uint32_t x)
+{
+    std::vector<uint32_t> result;
+    for (int i = 0; i < 4; ++i)
+    {
+        result.push_back((x & 0xff000000) >> 24);
+        x <<= 8;
+    }
+    return result;
+}
+
+std::vector<uint32_t> parse_ip_to_vector(const std::string &ip_str)
+{
+    std::vector<uint32_t> result;
+    std::istringstream ss(ip_str);
+    std::string token;
+
+    while (std::getline(ss, token, '.'))
+    {
+        int num = std::stoi(token);
+        if (num < 0 || num > 255)
+        {
+            throw std::out_of_range("IP segment out of range: " + token);
+        }
+        result.push_back(static_cast<uint32_t>(num));
+    }
+
+    if (result.size() != 4)
+    {
+        throw std::invalid_argument("Invalid IP address format: " + ip_str);
+    }
+
+    return result;
+}
+
+std::string vector_to_ip_string(const std::vector<uint32_t> &parts)
+{
+    if (parts.size() != 4)
+    {
+        throw std::invalid_argument("IP vector must contain exactly 4 elements");
+    }
+
+    for (auto part : parts)
+    {
+        if (part > 255)
+        {
+            throw std::out_of_range("IP segment out of range: " + std::to_string(part));
+        }
+    }
+
+    std::ostringstream ss;
+    ss << parts[0] << '.' << parts[1] << '.' << parts[2] << '.' << parts[3];
+    return ss.str();
+}
 
 namespace YAML
 {
@@ -56,14 +120,14 @@ namespace YAML
 
         static bool decode(const Node &node, SdaaCfg &rhs)
         {
-            rhs.ctrl_ip = node["ctrl_ip"].as<std::string>();
+            rhs.ctrl_ip = node["ctrl_ip"].as<std::vector<uint32_t>>();
             rhs.ctrl_port = node["ctrl_port"].as<uint16_t>();
             rhs.local_port = node["local_port"].as<uint16_t>();
             Node payload_node = node["payload"];
             rhs.payload.clear();
             for (int i = 0; i < payload_node.size(); ++i)
             {
-                std::string ip = payload_node[i]["ip"].as<std::string>();
+                std::vector<uint32_t> ip = payload_node[i]["ip"].as<std::vector<uint32_t>>();
                 uint16_t port = payload_node[i]["port"].as<uint16_t>();
                 rhs.payload.push_back(std::make_tuple(ip, port));
             }
@@ -79,30 +143,22 @@ class SdaaSDR : public SoapySDR::Device
 {
 private:
     SdaaCfg cfg;
-    // int64_t lo_ch;
-    uint32_t stream_handler;
-    std::unique_ptr<SdaaReceiver> device_handler;
-    std::vector<std::complex<float>> *ptr_buffer;
-    size_t offset{0};
+    int64_t lo_ch;
+    float voltage_gain;
+
+    std::unique_ptr<CSdr, decltype(free_sdr_device) &> device_handler;
 
 public:
     // Implement constructor with device specific arguments...
     SdaaSDR() = default;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), stream_handler(0), device_handler(make_unique<SdaaReceiver>(std::get<0>(cfg.payload[0]), std::get<1>(cfg.payload[0]), 8192, 4, fir_coeffs_half())), ptr_buffer(nullptr)
+        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), 3001, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0])), free_sdr_device), lo_ch(1024),voltage_gain(1.0)
     {
-        std::cout << "init" << std::endl;
-        assert(make_device(cfg.ctrl_ip.c_str(), cfg.local_port));
-
-        offset = device_handler->calc_output_size();
     }
 
     ~SdaaSDR()
     {
-        deactivateStream(
-            (Stream *)this,
-            0, 0);
-        assert(unmake_device(cfg.ctrl_ip.c_str(), cfg.local_port));
+        stop_data_stream(device_handler.get());
     }
 
 public:
@@ -113,7 +169,8 @@ public:
 
     std::string getHardwareKey(void) const
     {
-        return cfg.ctrl_ip;
+        // return parse_ip_to_vector(cfg.ctrl_ip);
+        return vector_to_ip_string(cfg.ctrl_ip);
     }
 
     Kwargs getHardwareInfo(void) const
@@ -190,15 +247,15 @@ public:
     {
         std::cout << "=================================" << std::endl;
         std::cout << "new freq:" << frequency << std::endl;
-        int idx = frequency / 240e6 * 2048;
-        device_handler->set_lo_ch(idx);
-        std::cout << "lo ch:" << device_handler->get_lo_ch() << std::endl;
+        lo_ch = frequency / 240e6 * 2048;
+        set_lo_ch(device_handler.get(), lo_ch);
+        std::cout << "lo ch:" << lo_ch << std::endl;
         std::cout << "=================================" << std::endl;
     }
 
     double getFrequency(const int direction, const size_t channel) const
     {
-        return device_handler->get_lo_ch() * 240e6 / 2048;
+        return lo_ch * 240e6 / 2048;
     }
 
     SoapySDR::RangeList getSampleRateRange(const int direction, const size_t channel) const
@@ -259,7 +316,8 @@ public:
         if (iter != args.end())
         {
             // std::cout << "lo ch not given, use default value 1024" << std::endl;
-            device_handler->set_lo_ch(atoi(iter->second.c_str()));
+            // device_handler->set_lo_ch(atoi(iter->second.c_str()));
+            set_lo_ch(device_handler.get(), atoi(iter->second.c_str()));
 
             // throw std::runtime_error("lo_ch not given");
         }
@@ -273,14 +331,11 @@ public:
         const long long timeNs = 0,
         const size_t numElems = 0)
     {
-        device_handler->start();
-        std::cout<<"ctrl addr="<<cfg.ctrl_ip<<std::endl;
-        std::cout<<"payload addr="<<std::get<0>(cfg.payload[0])<<std::endl;
-        assert(start_stream(cfg.ctrl_ip.c_str(), cfg.local_port));
-        while (!device_handler->pop_ddc(ptr_buffer))
-        {
-            std::this_thread::yield();
-        }
+        // device_handler->start();
+        start_data_stream(device_handler.get());
+        std::cout << "ctrl addr=" << vector_to_ip_string(cfg.ctrl_ip) << std::endl;
+        std::cout << "payload addr=" << vector_to_ip_string(std::get<0>(cfg.payload[0])) << std::endl;
+
         return 0;
     }
 
@@ -294,15 +349,14 @@ public:
         const int flags = 0,
         const long long timeNs = 0)
     {
-        device_handler->stop();
-        device_handler->push_free_ddc(ptr_buffer);
-        ptr_buffer = nullptr;
+        std::cerr << "BBB" << std::endl;
+        stop_data_stream(device_handler.get());
         return 0;
     }
 
     size_t getStreamMTU(Stream *stream) const
     {
-        return device_handler->calc_output_size();
+        return get_mtu();
     }
 
     int readStream(
@@ -313,50 +367,11 @@ public:
         long long &timeNs,
         const long timeoutUs)
     {
-        size_t n_to_copy = numElems;
-        while (n_to_copy > 0)
-        {
-            size_t navail = ptr_buffer->size() - offset;
-            size_t n_to_copy1 = std::min(navail, n_to_copy);
-            if (n_to_copy1 > 0)
-            {
-                std::memcpy(buffs[0], (void *)(ptr_buffer->data() + offset), n_to_copy * sizeof(float) * 2);
-                n_to_copy -= n_to_copy1;
-                offset += n_to_copy1;
-            }
-            assert(offset <= ptr_buffer->size());
-            if (offset == ptr_buffer->size())
-            {
-                offset = 0;
-                device_handler->push_free_ddc(ptr_buffer);
-
-                while (!device_handler->pop_ddc(ptr_buffer))
-                {
-                    std::this_thread::yield();
-                }
-            }
-        }
-
-        for (int i = 0; i < numElems; ++i)
-        {
-
-            // assert(!(std::isnan(x.real())||std::isnan(x.imag())));
-            ((std::complex<float> *)buffs[0])[i] /= 50.0;
-            auto x = ((std::complex<float> *)buffs[0])[i];
-            if (!std::isnormal(x.real()) || !std::isnormal(x.imag()))
-            {
-                ((std::complex<float> *)buffs[0])[i] = std::complex<float>(1e-5, 1e-5);
-            }
-        }
-
-        for (int i = 0; i < numElems; ++i)
-        {
-            auto &x = ((std::complex<float> *)buffs[0])[i];
-            if (std::abs(x) > 10e9)
-            {
-	            //std::cout<<"x"<<std::endl;
-                x = 0.0;
-            }
+        fetch_data(device_handler.get(), (CComplex *)buffs[0], numElems);
+        auto buff=(CComplex*)buffs[0];
+        for(int i=0;i<numElems;++i){
+            buff[i].re*=voltage_gain;
+            buff[i].im*=voltage_gain;
         }
         return numElems;
     }
@@ -394,24 +409,30 @@ public:
 
     double getGain(const int direction, const size_t channel) const
     {
-        return 0.0;
+        return std::log10(voltage_gain)*20;
     }
 
     double getGain(const int direction, const size_t channel, const std::string &name) const
     {
-        return 0.0;
+        return std::log10(voltage_gain)*20;
     }
 
     SoapySDR::Range getGainRange(const int direction, const size_t channel) const
     {
-        SoapySDR::Range r(0.0, 0.0, 0.0);
+        SoapySDR::Range r(-30.0, 0.0, 0.0);
         return r;
     }
 
     SoapySDR::Range getGainRange(const int direction, const size_t channel, const std::string &name) const
     {
-        SoapySDR::Range r(0.0, 0.0, 0.0);
+        SoapySDR::Range r(-100.0, 0.0, 0.0);
         return r;
+    }
+
+    void setGain(const int direction, const size_t channel, const std::string &name, const double value)
+    {
+        voltage_gain=std::pow(10.0, value/20);
+        std::cerr<<"gain="<<voltage_gain<<std::endl;
     }
 };
 
@@ -420,7 +441,7 @@ public:
  **********************************************************************/
 SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
 {
-    (void)args;
+    std::cout << "finding sdaa sdr" << std::endl;
     for (auto &x : args)
     {
         std::cout << x.first << " : " << x.second << std::endl;
@@ -442,37 +463,49 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
     }
     else
     {
-        cfg_file = "./cfg.yaml";
+        cfg_file = "./cfg0.yaml";
     }
 
-    SdaaCfg cfg;
+    std::vector<SdaaCfg> cfg;
     try
     {
-        cfg = YAML::LoadFile(cfg_file).as<SdaaCfg>();
+        cfg = YAML::LoadFile(cfg_file).as<std::vector<SdaaCfg>>();
     }
     catch (const YAML::BadFile &e)
     {
         return kwl;
     }
 
-    std::string addr = cfg.ctrl_ip;
-
-    auto n = find_device(addr.c_str(), result, 255, 3002);
-    std::cout << n << " devices found" << std::endl;
-    std::cout << "they are:" << std::endl;
-    for (ulong i = 0; i < n; ++i)
+    for (const auto &c : cfg)
     {
-        auto ip = result[i];
-        auto ip1 = (ip & 0xff000000) >> 24;
-        auto ip2 = (ip & 0xff0000) >> 16;
-        auto ip3 = (ip & 0xff00) >> 8;
-        auto ip4 = (ip & 0xff);
-        auto ip_str = std::format("{}.{}.{}.{}", ip1, ip2, ip3, ip4);
-        std::cout << ip_str << std::endl;
-        SoapySDR::Kwargs args1;
-        args1["addr"] = ip_str;
-        args1["cfg"] = cfg_file;
-        kwl.push_back(args1);
+        auto iter = args.find("ip");
+        if (iter != args.end())
+        {
+            auto ip_vec = parse_ip_to_vector(iter->second);
+            if (c.ctrl_ip != ip_vec)
+            {
+                continue;
+            }
+        }
+        auto n = find_device(ip2int(c.ctrl_ip), result, 255, 3002);
+        std::cout << n << " devices found" << std::endl;
+        std::cout << "they are:" << std::endl;
+        int dev_idx = 0;
+        for (ulong i = 0; i < n; ++i)
+        {
+            auto ip = result[i];
+            auto ip1 = (ip & 0xff000000) >> 24;
+            auto ip2 = (ip & 0xff0000) >> 16;
+            auto ip3 = (ip & 0xff00) >> 8;
+            auto ip4 = (ip & 0xff);
+            auto ip_str = std::format("{}.{}.{}.{}", ip1, ip2, ip3, ip4);
+            std::cout << ip_str << std::endl;
+            SoapySDR::Kwargs args1;
+            args1["cfg"] = cfg_file;
+            args1["dev_idx"] = std::format("{}", dev_idx);
+            dev_idx += 1;
+            kwl.push_back(args1);
+        }
     }
     std::cout << "kwl size=" << kwl.size() << std::endl;
     std::cout << "-----==================------" << std::endl;
@@ -485,7 +518,8 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
  **********************************************************************/
 SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
 {
-    (void)args;
+    std::cout << "making sdaa sdr" << std::endl;
+
     std::cout << "size=" << args.size() << std::endl;
     for (auto &x : args)
     {
@@ -502,12 +536,17 @@ SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
     }
     else
     {
-        cfg_file = "./cfg.yaml";
+        cfg_file = "./cfg0.yaml";
     }
 
-    SdaaCfg cfg = YAML::LoadFile(cfg_file).as<SdaaCfg>();
+    iter = args.find("dev_idx");
+    assert(iter != args.end());
+    auto dev_idx = atoi(iter->second.c_str());
+    std::cout << "a" << std::endl;
+    auto cfg = YAML::LoadFile(cfg_file).as<std::vector<SdaaCfg>>();
 
-    return new SdaaSDR(cfg);
+    std::cout << "b" << std::endl;
+    return new SdaaSDR(cfg[dev_idx]);
 }
 
 /***********************************************************************

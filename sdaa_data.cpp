@@ -26,8 +26,15 @@ namespace sdaa
 
     SdaaReceiver::~SdaaReceiver()
     {
-        free_ddc_resources(&res_);
+        std::cerr<<"BBB"<<std::endl;
         running_ = false;
+        if (ddc_thread_handler.joinable()){
+            ddc_thread_handler.join();
+        }
+        if(recv_thread_handler.joinable()){
+            recv_thread_handler.join();
+        }
+        free_ddc_resources(&res_);
     }
 
     void SdaaReceiver::set_lo_ch(int32_t lo_ch)
@@ -155,6 +162,7 @@ namespace sdaa
                 }
             }
         }
+        std::cout<<"stopped"<<std::endl;
     }
 
     void SdaaReceiver::ddc_thread()
@@ -169,6 +177,10 @@ namespace sdaa
                     std::vector<std::complex<float>> *p1 = nullptr;
                     while (is_running() && !free_ddc_queue_.pop(p1))
                     {
+                        if (!is_running()){
+                            return;
+                        }
+                        std::cerr<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
                         std::this_thread::yield();
                     }
                     fetch_output((fcomplex*)(p1->data()), &res_);
@@ -211,18 +223,19 @@ namespace sdaa
     void SdaaReceiver::start()
     {
         running_ = true;
-        std::thread receiver([this]
+        recv_thread_handler=std::thread([this]
                              { this->receiver_thread(); });
 
-        std::thread ddc_t([this]
+        ddc_thread_handler=std::thread([this]
                           { this->ddc_thread(); });
-        receiver.detach();
-        ddc_t.detach();
+        //receiver.detach();
+        //..ddc_t.detach();
     }
 
     void SdaaReceiver::stop()
     {
         running_ = false;
+        std::cout<<"stopped"<<std::endl;
     }
 
     size_t SdaaReceiver::calc_output_size() const

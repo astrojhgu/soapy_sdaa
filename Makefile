@@ -1,32 +1,16 @@
-all: libsdaa.so test_data_recv test_soapy
+all: libsdaa.so
 
-LIBS=-lSoapySDR -lyaml-cpp -lcudart ../sdaa_ctrl/target/release/libsdaa_ctrl.a ../cuddc/libcuddc.a
-CFLAGS=-g -I ../cuddc
-
-sdaa_data.o: sdaa_data.cpp
-	g++ --std=c++23 -c $< -o $@ -O3 $(CFLAGS)
+LIBS=-lSoapySDR -lyaml-cpp -lcudart  -L ../cuddc -lcuddc -L ../sdaa_data/target/release -lsdaa_data
+CFLAGS=-g -I ../cuddc -I ../sdaa_ctrl/include -I ../sdaa_data/include
 
 #ddc_kernel.o: ddc_kernel.cu
 #	nvcc -c $< -o $@ $(OPT) --cudart=static --cudadevrt=none $(CFLAGS)
 
-test_data_recv.o: test_data_recv.cpp
-	g++ -c $< -o $@ -O3 -g $(CFLAGS)
-
 sdaa.o:	sdaa.cpp
 	g++ -c --std=c++23 $< -o $@ -O3 $(CFLAGS)
 
-#libsdaa.so: sdaa.o ddc_kernel.o sdaa_data.o
-#	g++ --shared  $^ -o $@ $(LIBS)
-
-test_data_recv: test_data_recv.o sdaa_data.o
-	g++ $^ -o $@ -O3 $(LIBS)
-
-test_soapy: test_soapy.o
-	g++ $< -o $@ -O3 $(LIBS)
-
-test_soapy.o: test_soapy.cpp
-	g++ -c $< -o $@ -O3 $(CFLAGS)
-
+libsdaa.so: sdaa.o
+	g++ -fPIC --shared  $^ -o $@ $(LIBS)
 
 clean:
 	rm -f *.o

@@ -42,11 +42,11 @@ pkgs.mkShell {
     sigdigger
     sdrpp
 
-    (python3.withPackages (ps: with ps; [numpy scipy matplotlib soapysdr ]))
+    (python3.withPackages (ps: with ps; [numpy scipy matplotlib soapysdr ipython ]))
   ];
   shellHook = ''
     export CUDA_PATH=${pkgs.cudatoolkit}
-    export LD_LIBRARY_PATH=${pkgs.linuxPackages.nvidia_x11}/lib:${pkgs.ncurses5}/lib
+    export LD_LIBRARY_PATH=${pkgs.linuxPackages.nvidia_x11}/lib:${pkgs.ncurses5}/lib:../cuddc:../sdaa_data/target/release
     export EXTRA_LDFLAGS="-L/lib -L${pkgs.linuxPackages.nvidia_x11}/lib"
     export EXTRA_CCFLAGS="-I/usr/include"
     export SOAPY_SDR_PLUGIN_PATH=$PWD
