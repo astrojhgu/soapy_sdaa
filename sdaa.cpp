@@ -152,7 +152,7 @@ public:
     // Implement constructor with device specific arguments...
     SdaaSDR() = default;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), 3001, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0])), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
+        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), cfg1.local_port, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0])), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
     {
     }
 
