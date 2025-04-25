@@ -16,7 +16,7 @@
 
 using namespace sdaa;
 
-constexpr int16_t local_port = 3002;
+// constexpr int16_t local_port = 3002;
 using namespace std;
 using namespace SoapySDR;
 
@@ -152,7 +152,7 @@ public:
     // Implement constructor with device specific arguments...
     SdaaSDR() = default;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), 3001, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0])), free_sdr_device), lo_ch(1024),voltage_gain(1.0)
+        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), 3001, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0])), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
     {
     }
 
@@ -368,10 +368,11 @@ public:
         const long timeoutUs)
     {
         fetch_data(device_handler.get(), (CComplex *)buffs[0], numElems);
-        auto buff=(CComplex*)buffs[0];
-        for(int i=0;i<numElems;++i){
-            buff[i].re*=voltage_gain;
-            buff[i].im*=voltage_gain;
+        auto buff = (CComplex *)buffs[0];
+        for (int i = 0; i < numElems; ++i)
+        {
+            buff[i].re *= voltage_gain;
+            buff[i].im *= voltage_gain;
         }
         return numElems;
     }
@@ -409,12 +410,12 @@ public:
 
     double getGain(const int direction, const size_t channel) const
     {
-        return std::log10(voltage_gain)*20;
+        return std::log10(voltage_gain) * 20;
     }
 
     double getGain(const int direction, const size_t channel, const std::string &name) const
     {
-        return std::log10(voltage_gain)*20;
+        return std::log10(voltage_gain) * 20;
     }
 
     SoapySDR::Range getGainRange(const int direction, const size_t channel) const
@@ -431,8 +432,8 @@ public:
 
     void setGain(const int direction, const size_t channel, const std::string &name, const double value)
     {
-        voltage_gain=std::pow(10.0, value/20);
-        std::cerr<<"gain="<<voltage_gain<<std::endl;
+        voltage_gain = std::pow(10.0, value / 20);
+        std::cerr << "gain=" << voltage_gain << std::endl;
     }
 };
 
@@ -441,7 +442,9 @@ public:
  **********************************************************************/
 SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
 {
+    std::cout << "================" << std::endl;
     std::cout << "finding sdaa sdr" << std::endl;
+    std::cout << "================" << std::endl;
     for (auto &x : args)
     {
         std::cout << x.first << " : " << x.second << std::endl;
@@ -476,8 +479,9 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
         return kwl;
     }
 
-    for (const auto &c : cfg)
+    for (int dev_idx = 0; dev_idx < cfg.size(); ++dev_idx)
     {
+        const auto &c = cfg[dev_idx];
         auto iter = args.find("ip");
         if (iter != args.end())
         {
@@ -487,10 +491,22 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
                 continue;
             }
         }
+
+        iter = args.find("dev_idx");
+        if (iter != args.end())
+        {
+            auto idx = atoi(iter->second.c_str());
+            std::cout<<"idx="<<idx<<std::endl;
+            if (idx != dev_idx)
+            {
+                continue;
+            }
+        }
+
         auto n = find_device(ip2int(c.ctrl_ip), result, 255, 3002);
         std::cout << n << " devices found" << std::endl;
         std::cout << "they are:" << std::endl;
-        int dev_idx = 0;
+
         for (ulong i = 0; i < n; ++i)
         {
             auto ip = result[i];
@@ -500,10 +516,11 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
             auto ip4 = (ip & 0xff);
             auto ip_str = std::format("{}.{}.{}.{}", ip1, ip2, ip3, ip4);
             std::cout << ip_str << std::endl;
+            std::cout << "dev idx= " << dev_idx << std::endl;
             SoapySDR::Kwargs args1;
             args1["cfg"] = cfg_file;
             args1["dev_idx"] = std::format("{}", dev_idx);
-            dev_idx += 1;
+
             kwl.push_back(args1);
         }
     }
@@ -518,7 +535,9 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
  **********************************************************************/
 SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
 {
+    std::cout << "===============" << std::endl;
     std::cout << "making sdaa sdr" << std::endl;
+    std::cout << "===============" << std::endl;
 
     std::cout << "size=" << args.size() << std::endl;
     for (auto &x : args)
