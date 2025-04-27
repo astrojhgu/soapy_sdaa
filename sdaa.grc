@@ -90,8 +90,8 @@ blocks:
     coordinate: [200, 12]
     rotation: 0
     state: enabled
-- name: blocks_complex_to_arg_0
-  id: blocks_complex_to_arg
+- name: blocks_complex_to_magphase_0
+  id: blocks_complex_to_magphase
   parameters:
     affinity: ''
     alias: ''
@@ -103,7 +103,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 68.0]
+    coordinate: [1344, 96.0]
     rotation: 0
     state: enabled
 - name: blocks_moving_average_xx_0
@@ -140,6 +140,42 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [960, 208.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_xx_0
+  id: blocks_multiply_const_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '57.29577951308232'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1536, 268.0]
+    rotation: 0
+    state: enabled
+- name: blocks_nlog10_ff_0
+  id: blocks_nlog10_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    k: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: '10'
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1544, 12.0]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_0
@@ -291,7 +327,81 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1464, 196.0]
+    coordinate: [1704, 180.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_vector_sink_f_1_0
+  id: qtgui_vector_sink_f
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    average: '0.2'
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    grid: 'False'
+    gui_hint: ''
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    nconnections: '1'
+    ref_level: '0'
+    showports: 'False'
+    update_time: '0.10'
+    vlen: nch
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    x_axis_label: '"x-Axis"'
+    x_start: '0'
+    x_step: '1.0'
+    x_units: '""'
+    y_axis_label: '"y-Axis"'
+    y_units: '""'
+    ymax: '90'
+    ymin: '-90'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1704, 84.0]
     rotation: 0
     state: enabled
 - name: soapy_custom_source_0
@@ -382,9 +492,12 @@ blocks:
     state: enabled
 
 connections:
-- [blocks_complex_to_arg_0, '0', qtgui_vector_sink_f_1, '0']
-- [blocks_moving_average_xx_0, '0', blocks_complex_to_arg_0, '0']
+- [blocks_complex_to_magphase_0, '0', blocks_nlog10_ff_0, '0']
+- [blocks_complex_to_magphase_0, '1', blocks_multiply_const_xx_0, '0']
+- [blocks_moving_average_xx_0, '0', blocks_complex_to_magphase_0, '0']
 - [blocks_multiply_conjugate_cc_0, '0', blocks_moving_average_xx_0, '0']
+- [blocks_multiply_const_xx_0, '0', qtgui_vector_sink_f_1, '0']
+- [blocks_nlog10_ff_0, '0', qtgui_vector_sink_f_1_0, '0']
 - [blocks_stream_to_vector_0, '0', fft_vxx_0, '0']
 - [blocks_stream_to_vector_0_0, '0', fft_vxx_0_0, '0']
 - [fft_vxx_0, '0', blocks_multiply_conjugate_cc_0, '0']
