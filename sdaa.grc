@@ -21,7 +21,7 @@ options:
     run_command: '{python} -u {filename}'
     run_options: prompt
     sizing_mode: fixed
-    thread_safe_setters: ''
+    thread_safe_setters: '1'
     title: Correlator
     window_size: (1000,1000)
   states:
@@ -42,7 +42,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [336, 20.0]
+    coordinate: [288, 12.0]
     rotation: 0
     state: enabled
 - name: freq_range
@@ -63,7 +63,40 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [896, 12.0]
+    coordinate: [608, 12.0]
+    rotation: 0
+    state: enabled
+- name: gain
+  id: variable
+  parameters:
+    comment: ''
+    value: '-10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 12.0]
+    rotation: 0
+    state: enabled
+- name: gain_range
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: gain
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-60'
+    step: '1'
+    stop: '0'
+    value: '-20'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 12.0]
     rotation: 0
     state: enabled
 - name: nch
@@ -75,7 +108,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [544, 20.0]
+    coordinate: [368, 12.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -103,7 +136,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1128, 176.0]
+    coordinate: [1096, 176.0]
     rotation: 0
     state: enabled
 - name: blocks_moving_average_xx_0
@@ -123,7 +156,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [960, 276.0]
+    coordinate: [944, 276.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_conjugate_cc_0
@@ -157,7 +190,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1320, 348.0]
+    coordinate: [1280, 276.0]
     rotation: 0
     state: enabled
 - name: blocks_nlog10_ff_0
@@ -175,7 +208,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1328, 92.0]
+    coordinate: [1280, 68.0]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_0
@@ -296,7 +329,7 @@ blocks:
     label7: ''
     label8: ''
     label9: ''
-    legend: 'True'
+    legend: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
@@ -315,19 +348,19 @@ blocks:
     width7: '1'
     width8: '1'
     width9: '1'
-    x_axis_label: '"x-Axis"'
-    x_start: '0'
-    x_step: '1.0'
-    x_units: '""'
-    y_axis_label: '"y-Axis"'
-    y_units: '""'
+    x_axis_label: '"freq"'
+    x_start: freq/1e6-60
+    x_step: 120/nch
+    x_units: '"MHz"'
+    y_axis_label: '"phase"'
+    y_units: '"deg"'
     ymax: '90'
     ymin: '-90'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1488, 260.0]
+    coordinate: [1472, 292.0]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1_0
@@ -370,7 +403,7 @@ blocks:
     label7: ''
     label8: ''
     label9: ''
-    legend: 'True'
+    legend: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
     name: '""'
@@ -389,19 +422,19 @@ blocks:
     width7: '1'
     width8: '1'
     width9: '1'
-    x_axis_label: '"x-Axis"'
-    x_start: '0'
-    x_step: '1.0'
-    x_units: '""'
-    y_axis_label: '"y-Axis"'
-    y_units: '""'
+    x_axis_label: '"freq"'
+    x_start: freq/1e6-60
+    x_step: 120/nch
+    x_units: '"MHz"'
+    y_axis_label: '"ampl"'
+    y_units: '"dB"'
     ymax: '90'
     ymin: '-90'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1488, 164.0]
+    coordinate: [1472, 92.0]
     rotation: 0
     state: enabled
 - name: soapy_custom_source_0
@@ -426,7 +459,7 @@ blocks:
     driver: sdaa,cfg=cfg0.yaml,ip=192.168.5.231
     freq_correction0: '0'
     freq_correction1: '0'
-    gain0: '10'
+    gain0: gain
     gain1: '0'
     iq_balance0: '0'
     iq_balance1: '0'
@@ -469,7 +502,7 @@ blocks:
     driver: sdaa,cfg=cfg0.yaml,ip=192.168.5.227
     freq_correction0: '0'
     freq_correction1: '0'
-    gain0: '10'
+    gain0: gain
     gain1: '0'
     iq_balance0: '0'
     iq_balance1: '0'

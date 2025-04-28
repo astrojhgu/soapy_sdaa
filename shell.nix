@@ -36,6 +36,7 @@ pkgs.mkShell {
     soapysdr
     yaml-cpp
     pkg-config
+    pothos
     gnuradio
     gqrx
     sdrangel
