@@ -33,7 +33,7 @@ pkgs.mkShell {
     binutils
     gdb
     boost.all
-    soapysdr
+    soapysdr-with-plugins
     yaml-cpp
     pkg-config
     pothos
@@ -43,7 +43,7 @@ pkgs.mkShell {
     sigdigger
     sdrpp
     cubicsdr
-
+    libsForQt5.qt5.qtwayland
     (python3.withPackages (ps: with ps; [numpy scipy matplotlib soapysdr ipython ]))
   ];
   shellHook = ''

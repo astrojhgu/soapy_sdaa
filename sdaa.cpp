@@ -9,6 +9,7 @@
 #include <memory>
 #include <format>
 #include <cassert>
+#include <mutex>
 #define USE_CUDA
 
 #include "sdaa_data.h"
@@ -442,8 +443,11 @@ public:
  **********************************************************************/
 SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
 {
+    static std::mutex my_mutex;
+    std::lock_guard<std::mutex> lock(my_mutex);
     std::cout << "================" << std::endl;
     std::cout << "finding sdaa sdr" << std::endl;
+    std::cout << "args:"<<"size="<<args.size()<<std::endl;
     for (auto &x : args)
     {
         std::cout << x.first << " : " << x.second << std::endl;
@@ -453,6 +457,10 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
     // return a list of 0, 1, or more argument maps that each identify a device
     SoapySDR::Kwargs args1;
     SoapySDR::KwargsList kwl;
+
+    if (args.empty()){
+        //return kwl;
+    }
 
     // kwl.push_back(args1);
 
@@ -535,9 +543,11 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
  **********************************************************************/
 SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
 {
+    static std::mutex my_mutex;
+    std::lock_guard<std::mutex> lock(my_mutex);
+
     std::cout << "===============" << std::endl;
     std::cout << "making sdaa sdr" << std::endl;
-
     std::cout << "size=" << args.size() << std::endl;
     for (auto &x : args)
     {

@@ -129,14 +129,27 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
     coordinate: [1096, 176.0]
+    rotation: 0
+    state: enabled
+- name: blocks_ctrlport_monitor_performance_0
+  id: blocks_ctrlport_monitor_performance
+  parameters:
+    alias: ''
+    comment: ''
+    en: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [856, 12.0]
     rotation: 0
     state: enabled
 - name: blocks_moving_average_xx_0
@@ -147,8 +160,8 @@ blocks:
     comment: ''
     length: '100'
     max_iter: '10'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     scale: '1'
     type: complex
     vlen: nch
@@ -165,8 +178,8 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     vlen: nch
   states:
     bus_sink: false
@@ -182,8 +195,8 @@ blocks:
     alias: ''
     comment: ''
     const: '57.29577951308232'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     type: float
     vlen: nch
   states:
@@ -200,8 +213,8 @@ blocks:
     alias: ''
     comment: ''
     k: '0'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     n: '10'
     vlen: nch
   states:
@@ -217,8 +230,8 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     num_items: nch
     type: complex
     vlen: '1'
@@ -235,8 +248,8 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     num_items: nch
     type: complex
     vlen: '1'
@@ -255,8 +268,8 @@ blocks:
     comment: ''
     fft_size: nch
     forward: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     nthreads: '1'
     shift: 'True'
     type: complex
@@ -276,8 +289,8 @@ blocks:
     comment: ''
     fft_size: nch
     forward: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     nthreads: '1'
     shift: 'True'
     type: complex
@@ -330,8 +343,8 @@ blocks:
     label8: ''
     label9: ''
     legend: 'False'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     name: '""'
     nconnections: '1'
     ref_level: '0'
@@ -404,8 +417,8 @@ blocks:
     label8: ''
     label9: ''
     legend: 'False'
-    maxoutbuf: '0'
-    minoutbuf: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
     name: '""'
     nconnections: '1'
     ref_level: '0'
