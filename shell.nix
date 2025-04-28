@@ -42,6 +42,7 @@ pkgs.mkShell {
     sdrangel
     sigdigger
     sdrpp
+    cubicsdr
 
     (python3.withPackages (ps: with ps; [numpy scipy matplotlib soapysdr ipython ]))
   ];

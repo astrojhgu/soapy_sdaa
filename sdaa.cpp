@@ -444,11 +444,11 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
 {
     std::cout << "================" << std::endl;
     std::cout << "finding sdaa sdr" << std::endl;
-    std::cout << "================" << std::endl;
     for (auto &x : args)
     {
         std::cout << x.first << " : " << x.second << std::endl;
     }
+    std::cout << "================" << std::endl;
     // locate the device on the system...
     // return a list of 0, 1, or more argument maps that each identify a device
     SoapySDR::Kwargs args1;
@@ -537,13 +537,13 @@ SoapySDR::Device *makeSdaaSDR(const SoapySDR::Kwargs &args)
 {
     std::cout << "===============" << std::endl;
     std::cout << "making sdaa sdr" << std::endl;
-    std::cout << "===============" << std::endl;
 
     std::cout << "size=" << args.size() << std::endl;
     for (auto &x : args)
     {
         std::cout << x.first << " : " << x.second << std::endl;
     }
+    std::cout << "===============" << std::endl;
     // create an instance of the device object given the args
     // here we will translate args into something used in the constructor
 
