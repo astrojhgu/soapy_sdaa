@@ -33,6 +33,18 @@ options:
     state: enabled
 
 blocks:
+- name: corr_samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 68.0]
+    rotation: 0
+    state: enabled
 - name: freq
   id: variable
   parameters:
@@ -136,20 +148,23 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1096, 176.0]
+    coordinate: [1056, 272.0]
     rotation: 0
     state: enabled
-- name: blocks_ctrlport_monitor_performance_0
-  id: blocks_ctrlport_monitor_performance
+- name: blocks_complex_to_real_0
+  id: blocks_complex_to_real
   parameters:
+    affinity: ''
     alias: ''
     comment: ''
-    en: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [856, 12.0]
+    coordinate: [1312, 512.0]
     rotation: 0
     state: enabled
 - name: blocks_moving_average_xx_0
@@ -169,7 +184,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [944, 276.0]
+    coordinate: [912, 356.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_conjugate_cc_0
@@ -185,7 +200,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [744, 288.0]
+    coordinate: [752, 288.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_xx_0
@@ -203,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1280, 276.0]
+    coordinate: [1240, 340.0]
     rotation: 0
     state: enabled
 - name: blocks_nlog10_ff_0
@@ -221,43 +236,45 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1280, 68.0]
+    coordinate: [1248, 196.0]
     rotation: 0
     state: enabled
-- name: blocks_stream_to_vector_0
-  id: blocks_stream_to_vector
+- name: blocks_stream_to_vector_decimator_0
+  id: blocks_stream_to_vector_decimator
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    maxoutbuf: '65536'
-    minoutbuf: '65536'
-    num_items: nch
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    sample_rate: samp_rate
     type: complex
-    vlen: '1'
+    vec_rate: corr_samp_rate
+    vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 232.0]
+    coordinate: [280, 212.0]
     rotation: 0
     state: enabled
-- name: blocks_stream_to_vector_0_0
-  id: blocks_stream_to_vector
+- name: blocks_stream_to_vector_decimator_0_0
+  id: blocks_stream_to_vector_decimator
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    maxoutbuf: '65536'
-    minoutbuf: '65536'
-    num_items: nch
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    sample_rate: samp_rate
     type: complex
-    vlen: '1'
+    vec_rate: corr_samp_rate
+    vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 376.0]
+    coordinate: [280, 356.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_0
@@ -300,6 +317,27 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [488, 340.0]
+    rotation: 0
+    state: enabled
+- name: fft_vxx_1
+  id: fft_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    fft_size: nch
+    forward: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    shift: 'True'
+    type: complex
+    window: window.blackmanharris(nch)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1048, 460.0]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1
@@ -373,7 +411,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1472, 292.0]
+    coordinate: [1432, 348.0]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1_0
@@ -447,7 +485,81 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1472, 92.0]
+    coordinate: [1440, 132.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_vector_sink_f_1_1
+  id: qtgui_vector_sink_f
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    average: '1.0'
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    grid: 'False'
+    gui_hint: ''
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'False'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
+    name: '""'
+    nconnections: '1'
+    ref_level: '0'
+    showports: 'False'
+    update_time: '0.10'
+    vlen: nch
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    x_axis_label: '"delay"'
+    x_start: -nch/2
+    x_step: '1'
+    x_units: '"pt"'
+    y_axis_label: real
+    y_units: '"rel"'
+    ymax: '90'
+    ymin: '-90'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1440, 572.0]
     rotation: 0
     state: enabled
 - name: soapy_custom_source_0
@@ -540,16 +652,19 @@ blocks:
 connections:
 - [blocks_complex_to_magphase_0, '0', blocks_nlog10_ff_0, '0']
 - [blocks_complex_to_magphase_0, '1', blocks_multiply_const_xx_0, '0']
+- [blocks_complex_to_real_0, '0', qtgui_vector_sink_f_1_1, '0']
 - [blocks_moving_average_xx_0, '0', blocks_complex_to_magphase_0, '0']
+- [blocks_moving_average_xx_0, '0', fft_vxx_1, '0']
 - [blocks_multiply_conjugate_cc_0, '0', blocks_moving_average_xx_0, '0']
 - [blocks_multiply_const_xx_0, '0', qtgui_vector_sink_f_1, '0']
 - [blocks_nlog10_ff_0, '0', qtgui_vector_sink_f_1_0, '0']
-- [blocks_stream_to_vector_0, '0', fft_vxx_0, '0']
-- [blocks_stream_to_vector_0_0, '0', fft_vxx_0_0, '0']
+- [blocks_stream_to_vector_decimator_0, '0', fft_vxx_0, '0']
+- [blocks_stream_to_vector_decimator_0_0, '0', fft_vxx_0_0, '0']
 - [fft_vxx_0, '0', blocks_multiply_conjugate_cc_0, '0']
 - [fft_vxx_0_0, '0', blocks_multiply_conjugate_cc_0, '1']
-- [soapy_custom_source_0, '0', blocks_stream_to_vector_0, '0']
-- [soapy_custom_source_0_0, '0', blocks_stream_to_vector_0_0, '0']
+- [fft_vxx_1, '0', blocks_complex_to_real_0, '0']
+- [soapy_custom_source_0, '0', blocks_stream_to_vector_decimator_0, '0']
+- [soapy_custom_source_0_0, '0', blocks_stream_to_vector_decimator_0_0, '0']
 
 metadata:
   file_format: 1
