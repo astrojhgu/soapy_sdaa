@@ -37,14 +37,24 @@ pkgs.mkShell {
     yaml-cpp
     pkg-config
     pothos
-    gnuradio
+    #gnuradio
+  (gnuradio.override {
+      extraPackages = with gnuradioPackages; [
+        osmosdr
+      ];
+      extraPythonPackages = with gnuradio.python.pkgs; [
+        numpy
+        qtpy
+      ];
+    })
+
     gqrx
     sdrangel
     sigdigger
     sdrpp
     cubicsdr
     libsForQt5.qt5.qtwayland
-    (python3.withPackages (ps: with ps; [numpy scipy matplotlib soapysdr ipython ]))
+    (python3.withPackages (ps: with ps; [numpy scipy matplotlib soapysdr ipython qtpy ]))
   ];
   shellHook = ''
     export CUDA_PATH=${pkgs.cudatoolkit}

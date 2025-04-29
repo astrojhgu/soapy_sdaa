@@ -37,12 +37,12 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '10'
+    value: '100'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 68.0]
+    coordinate: [201.375, 87.25000000000001]
     rotation: 0
     state: enabled
 - name: freq
@@ -54,7 +54,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 12.0]
+    coordinate: [303.12500000000006, 12.000000000000014]
     rotation: 0
     state: enabled
 - name: freq_range
@@ -75,19 +75,19 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [608, 12.0]
+    coordinate: [778.5, 14.75]
     rotation: 0
     state: enabled
 - name: gain
   id: variable
   parameters:
     comment: ''
-    value: '-10'
+    value: gain_range
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 12.0]
+    coordinate: [545.3143521230552, 12.498765251296518]
     rotation: 0
     state: enabled
 - name: gain_range
@@ -99,7 +99,7 @@ blocks:
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '-60'
+    start: '-100'
     step: '1'
     stop: '0'
     value: '-20'
@@ -108,7 +108,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 12.0]
+    coordinate: [905.625, 14.750000000000014]
     rotation: 0
     state: enabled
 - name: nch
@@ -120,7 +120,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 12.0]
+    coordinate: [457.3143521230553, 12.498765251296518]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -148,7 +148,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1056, 272.0]
+    coordinate: [1171.5, 273.37500000000006]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_real_0
@@ -164,7 +164,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 512.0]
+    coordinate: [1472.875, 547.75]
     rotation: 0
     state: enabled
 - name: blocks_moving_average_xx_0
@@ -184,7 +184,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [912, 356.0]
+    coordinate: [1004.1250000000001, 380.75000000000006]
     rotation: 0
     state: enabled
 - name: blocks_multiply_conjugate_cc_0
@@ -200,7 +200,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [752, 288.0]
+    coordinate: [860.6250000000001, 318.25000000000006]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_xx_0
@@ -218,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1240, 340.0]
+    coordinate: [1382.125, 386.00000000000006]
     rotation: 0
     state: enabled
 - name: blocks_nlog10_ff_0
@@ -236,7 +236,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1248, 196.0]
+    coordinate: [1387.0, 147.12500000000006]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_decimator_0
@@ -255,7 +255,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 212.0]
+    coordinate: [280.0, 212.0]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_decimator_0_0
@@ -274,7 +274,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 356.0]
+    coordinate: [280.0, 356.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_0
@@ -295,7 +295,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 196.0]
+    coordinate: [581.375, 220.75000000000006]
     rotation: 0
     state: enabled
 - name: fft_vxx_0_0
@@ -316,7 +316,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 340.0]
+    coordinate: [581.5000000000001, 359.25000000000006]
     rotation: 0
     state: enabled
 - name: fft_vxx_1
@@ -337,7 +337,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 460.0]
+    coordinate: [1173.125, 535.625]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1
@@ -411,7 +411,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1432, 348.0]
+    coordinate: [1652.875, 371.50000000000006]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1_0
@@ -485,7 +485,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1440, 132.0]
+    coordinate: [1658.375, 123.0]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1_1
@@ -559,7 +559,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1440, 572.0]
+    coordinate: [1663.875, 565.5]
     rotation: 0
     state: enabled
 - name: soapy_custom_source_0

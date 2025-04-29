@@ -406,7 +406,7 @@ public:
 
     std::vector<std::string> listGains(const int direction, const size_t channel) const
     {
-        return std::vector<std::string>{"TOTAL"};
+        return std::vector<std::string>{"GAIN"};
     }
 
     double getGain(const int direction, const size_t channel) const
@@ -421,7 +421,7 @@ public:
 
     SoapySDR::Range getGainRange(const int direction, const size_t channel) const
     {
-        SoapySDR::Range r(-30.0, 0.0, 0.0);
+        SoapySDR::Range r(-100.0, 0.0, 0.0);
         return r;
     }
 
@@ -429,6 +429,10 @@ public:
     {
         SoapySDR::Range r(-100.0, 0.0, 0.0);
         return r;
+    }
+
+    bool hasGainMode(const int direction, const size_t channel) const{
+        return false;
     }
 
     void setGain(const int direction, const size_t channel, const std::string &name, const double value)
