@@ -42,8 +42,8 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [201.375, 87.25000000000001]
-    rotation: 0
+    coordinate: [200.06064787694478, 90.18811737435175]
+    rotation: 0.0
     state: enabled
 - name: freq
   id: variable
@@ -115,7 +115,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '8192'
+    value: '16384'
   states:
     bus_sink: false
     bus_source: false
@@ -134,6 +134,38 @@ blocks:
     bus_structure: null
     coordinate: [200, 12]
     rotation: 0
+    state: enabled
+- name: blocks_complex_to_mag_squared_0
+  id: blocks_complex_to_mag_squared
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [862.5, 212.5]
+    rotation: 0.0
+    state: enabled
+- name: blocks_complex_to_mag_squared_0_0
+  id: blocks_complex_to_mag_squared
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [858.75, 488.75]
+    rotation: 0.0
     state: enabled
 - name: blocks_complex_to_magphase_0
   id: blocks_complex_to_magphase
@@ -167,25 +199,59 @@ blocks:
     coordinate: [1472.875, 547.75]
     rotation: 0
     state: enabled
-- name: blocks_moving_average_xx_0
-  id: blocks_moving_average_xx
+- name: blocks_integrate_xx_0
+  id: blocks_integrate_xx
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    length: '100'
-    max_iter: '10'
-    maxoutbuf: '65536'
-    minoutbuf: '65536'
-    scale: '1'
+    decim: '200'
+    maxoutbuf: '0'
+    minoutbuf: '0'
     type: complex
     vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1004.1250000000001, 380.75000000000006]
-    rotation: 0
+    coordinate: [1012.5, 412.5]
+    rotation: 0.0
+    state: enabled
+- name: blocks_integrate_xx_0_0
+  id: blocks_integrate_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '200'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1110.8373154947567, 90.0]
+    rotation: 0.0
+    state: enabled
+- name: blocks_integrate_xx_0_1
+  id: blocks_integrate_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '200'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1123.75, 191.25]
+    rotation: 0.0
     state: enabled
 - name: blocks_multiply_conjugate_cc_0
   id: blocks_multiply_conjugate_cc
@@ -236,7 +302,43 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1387.0, 147.12500000000006]
+    coordinate: [1423.6265965439518, 225.07391059353873]
+    rotation: 0
+    state: enabled
+- name: blocks_nlog10_ff_0_0
+  id: blocks_nlog10_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    k: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
+    n: '10'
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1416.7220135236664, 3.1054658151766574]
+    rotation: 0
+    state: enabled
+- name: blocks_nlog10_ff_0_0_0
+  id: blocks_nlog10_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    k: '0'
+    maxoutbuf: '65536'
+    minoutbuf: '65536'
+    n: '10'
+    vlen: nch
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1417.3305785123969, 106.08067242674689]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_decimator_0
@@ -249,14 +351,14 @@ blocks:
     minoutbuf: '0'
     sample_rate: samp_rate
     type: complex
-    vec_rate: corr_samp_rate
+    vec_rate: '300'
     vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280.0, 212.0]
-    rotation: 0
+    coordinate: [317.5, 215.0]
+    rotation: 0.0
     state: enabled
 - name: blocks_stream_to_vector_decimator_0_0
   id: blocks_stream_to_vector_decimator
@@ -268,14 +370,14 @@ blocks:
     minoutbuf: '0'
     sample_rate: samp_rate
     type: complex
-    vec_rate: corr_samp_rate
+    vec_rate: '300'
     vlen: nch
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280.0, 356.0]
-    rotation: 0
+    coordinate: [317.5, 358.75]
+    rotation: 0.0
     state: enabled
 - name: fft_vxx_0
   id: fft_vxx
@@ -444,21 +546,21 @@ blocks:
     comment: ''
     grid: 'False'
     gui_hint: ''
-    label1: ''
+    label1: xx
     label10: ''
-    label2: ''
-    label3: ''
+    label2: yy
+    label3: xy
     label4: ''
     label5: ''
     label6: ''
     label7: ''
     label8: ''
     label9: ''
-    legend: 'False'
+    legend: 'True'
     maxoutbuf: '65536'
     minoutbuf: '65536'
     name: '""'
-    nconnections: '1'
+    nconnections: '3'
     ref_level: '0'
     showports: 'False'
     update_time: '0.10'
@@ -485,7 +587,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1658.375, 123.0]
+    coordinate: [1652.125, 140.5]
     rotation: 0
     state: enabled
 - name: qtgui_vector_sink_f_1_1
@@ -650,17 +752,25 @@ blocks:
     state: enabled
 
 connections:
+- [blocks_complex_to_mag_squared_0, '0', blocks_integrate_xx_0_0, '0']
+- [blocks_complex_to_mag_squared_0_0, '0', blocks_integrate_xx_0_1, '0']
 - [blocks_complex_to_magphase_0, '0', blocks_nlog10_ff_0, '0']
 - [blocks_complex_to_magphase_0, '1', blocks_multiply_const_xx_0, '0']
 - [blocks_complex_to_real_0, '0', qtgui_vector_sink_f_1_1, '0']
-- [blocks_moving_average_xx_0, '0', blocks_complex_to_magphase_0, '0']
-- [blocks_moving_average_xx_0, '0', fft_vxx_1, '0']
-- [blocks_multiply_conjugate_cc_0, '0', blocks_moving_average_xx_0, '0']
+- [blocks_integrate_xx_0, '0', blocks_complex_to_magphase_0, '0']
+- [blocks_integrate_xx_0, '0', fft_vxx_1, '0']
+- [blocks_integrate_xx_0_0, '0', blocks_nlog10_ff_0_0, '0']
+- [blocks_integrate_xx_0_1, '0', blocks_nlog10_ff_0_0_0, '0']
+- [blocks_multiply_conjugate_cc_0, '0', blocks_integrate_xx_0, '0']
 - [blocks_multiply_const_xx_0, '0', qtgui_vector_sink_f_1, '0']
-- [blocks_nlog10_ff_0, '0', qtgui_vector_sink_f_1_0, '0']
+- [blocks_nlog10_ff_0, '0', qtgui_vector_sink_f_1_0, '2']
+- [blocks_nlog10_ff_0_0, '0', qtgui_vector_sink_f_1_0, '0']
+- [blocks_nlog10_ff_0_0_0, '0', qtgui_vector_sink_f_1_0, '1']
 - [blocks_stream_to_vector_decimator_0, '0', fft_vxx_0, '0']
 - [blocks_stream_to_vector_decimator_0_0, '0', fft_vxx_0_0, '0']
+- [fft_vxx_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [fft_vxx_0, '0', blocks_multiply_conjugate_cc_0, '0']
+- [fft_vxx_0_0, '0', blocks_complex_to_mag_squared_0_0, '0']
 - [fft_vxx_0_0, '0', blocks_multiply_conjugate_cc_0, '1']
 - [fft_vxx_1, '0', blocks_complex_to_real_0, '0']
 - [soapy_custom_source_0, '0', blocks_stream_to_vector_decimator_0, '0']
