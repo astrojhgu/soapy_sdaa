@@ -26,6 +26,7 @@ struct SdaaCfg
     std::vector<uint32_t> ctrl_ip;
     uint16_t ctrl_port;
     uint16_t local_port;
+    int ndec;
     std::vector<std::tuple<std::vector<uint32_t>, uint16_t>> payload;
 };
 
@@ -107,6 +108,7 @@ namespace YAML
             node["ctrl_ip"] = rhs.ctrl_ip;
             node["ctrl_port"] = rhs.ctrl_port;
             node["local_port"] = rhs.local_port;
+            node["ndec"] = rhs.ndec;
             Node payload_node;
             for (auto &x : rhs.payload)
             {
@@ -124,6 +126,7 @@ namespace YAML
             rhs.ctrl_ip = node["ctrl_ip"].as<std::vector<uint32_t>>();
             rhs.ctrl_port = node["ctrl_port"].as<uint16_t>();
             rhs.local_port = node["local_port"].as<uint16_t>();
+            rhs.ndec = node["ndec"].as<int>();
             Node payload_node = node["payload"];
             rhs.payload.clear();
             for (int i = 0; i < payload_node.size(); ++i)
@@ -151,9 +154,9 @@ private:
 
 public:
     // Implement constructor with device specific arguments...
-    SdaaSDR() = default;
+    SdaaSDR() = delete;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), cfg1.local_port, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0])), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
+        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), cfg1.local_port, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0]), cfg1.ndec), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
     {
     }
 
@@ -223,7 +226,7 @@ public:
 
     SoapySDR::RangeList getFrequencyRange(const int direction, const size_t channel) const
     {
-        SoapySDR::Range r(30e6, 210e6, 240e6 / 4096);
+        SoapySDR::Range r(30e6, 450e6, 240e6 / 4096);
         return SoapySDR::RangeList{r};
     }
 
@@ -261,13 +264,13 @@ public:
 
     SoapySDR::RangeList getSampleRateRange(const int direction, const size_t channel) const
     {
-        SoapySDR::Range r(120e6, 120e6, 0);
+        SoapySDR::Range r(120e6, 240e6, 120e6);
         return SoapySDR::RangeList{r};
     }
 
     double getSampleRate(const int direction, const size_t channel) const
     {
-        return 120e6;
+        return 480e6/cfg.ndec;
     }
 
     SoapySDR::ArgInfoList getStreamArgsInfo(const int direction, const size_t channel)

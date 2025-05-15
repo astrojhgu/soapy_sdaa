@@ -139,7 +139,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 120e6
+    value: 240e6
   states:
     bus_sink: false
     bus_source: false
@@ -363,7 +363,7 @@ blocks:
     minoutbuf: '0'
     sample_rate: samp_rate
     type: complex
-    vec_rate: '300'
+    vec_rate: corr_samp_rate
     vlen: nch
   states:
     bus_sink: false
@@ -382,7 +382,7 @@ blocks:
     minoutbuf: '0'
     sample_rate: samp_rate
     type: complex
-    vec_rate: '300'
+    vec_rate: corr_samp_rate
     vlen: nch
   states:
     bus_sink: false
@@ -514,8 +514,8 @@ blocks:
     width8: '1'
     width9: '1'
     x_axis_label: '"freq"'
-    x_start: freq/1e6-60
-    x_step: 120/nch
+    x_start: freq/1e6-samp_rate/1e6/2
+    x_step: samp_rate/1e6/nch
     x_units: '"MHz"'
     y_axis_label: '"phase"'
     y_units: '"deg"'
@@ -588,8 +588,8 @@ blocks:
     width8: '1'
     width9: '1'
     x_axis_label: '"freq"'
-    x_start: freq/1e6-60
-    x_step: 120/nch
+    x_start: freq/1e6-samp_rate/1e6/2
+    x_step: samp_rate/1e6/nch
     x_units: '"MHz"'
     y_axis_label: '"ampl"'
     y_units: '"dB"'
