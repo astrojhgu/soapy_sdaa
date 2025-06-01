@@ -1,6 +1,6 @@
 all: libsdaa.so
 
-LIBS=-lSoapySDR -lyaml-cpp -lcudart -L ../sdaa_data/target/release -lsdaa_data
+LIBS=-lSoapySDR -lyaml-cpp -L ../sdaa_data/target/release -lsdaa_data -lcudart_static -lcufft_static_nocallback -lculibos
 CFLAGS=-g -I ../sdaa_data/cuddc -I ../sdaa_ctrl/include -I ../sdaa_data/include
 
 #ddc_kernel.o: ddc_kernel.cu

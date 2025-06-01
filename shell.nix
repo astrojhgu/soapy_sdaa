@@ -20,6 +20,7 @@ pkgs.mkShell {
     libGL
     nvtopPackages.nvidia
     cudaPackages.cuda_cudart.all
+    cudaPackages.libcufft.all
     xorg.libXi
     xorg.libXmu
     freeglut
