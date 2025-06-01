@@ -1,7 +1,7 @@
 all: libsdaa.so
 
-LIBS=-lSoapySDR -lyaml-cpp -lcudart  -L ../cuddc -lcuddc -L ../sdaa_data/target/release -lsdaa_data
-CFLAGS=-g -I ../cuddc -I ../sdaa_ctrl/include -I ../sdaa_data/include
+LIBS=-lSoapySDR -lyaml-cpp -lcudart -L ../sdaa_data/target/release -lsdaa_data
+CFLAGS=-g -I ../sdaa_data/cuddc -I ../sdaa_ctrl/include -I ../sdaa_data/include
 
 #ddc_kernel.o: ddc_kernel.cu
 #	nvcc -c $< -o $@ $(OPT) --cudart=static --cudadevrt=none $(CFLAGS)
