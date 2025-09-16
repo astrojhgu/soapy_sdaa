@@ -518,7 +518,7 @@ SoapySDR::KwargsList findSdaaSDR(const SoapySDR::Kwargs &args)
             }
         }
 
-        auto n = find_device(ip2int(c.ctrl_ip), result, 255, 3002);
+        auto n = find_device(ip2int(c.ctrl_ip), result, 255, c.local_port);
         std::cout << n << " devices found" << std::endl;
         std::cout << "they are:" << std::endl;
 
