@@ -27,6 +27,7 @@ struct SdaaCfg
     uint16_t ctrl_port;
     uint16_t local_port;
     int ndec;
+    int await_locked;
     std::vector<std::tuple<std::vector<uint32_t>, uint16_t>> payload;
 };
 
@@ -109,6 +110,7 @@ namespace YAML
             node["ctrl_port"] = rhs.ctrl_port;
             node["local_port"] = rhs.local_port;
             node["ndec"] = rhs.ndec;
+	    node["await_locked"]=rhs.await_locked;
             Node payload_node;
             for (auto &x : rhs.payload)
             {
@@ -127,6 +129,7 @@ namespace YAML
             rhs.ctrl_port = node["ctrl_port"].as<uint16_t>();
             rhs.local_port = node["local_port"].as<uint16_t>();
             rhs.ndec = node["ndec"].as<int>();
+	    rhs.await_locked= node["await_locked"].as<int>();
             Node payload_node = node["payload"];
             rhs.payload.clear();
             for (int i = 0; i < payload_node.size(); ++i)
@@ -156,7 +159,7 @@ public:
     // Implement constructor with device specific arguments...
     SdaaSDR() = delete;
     SdaaSDR(const SdaaCfg &cfg1)
-        : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), cfg1.local_port, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0]), cfg1.ndec), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
+      : SoapySDR::Device(), cfg(cfg1), device_handler(new_sdr_device(ip2int(cfg.ctrl_ip), cfg1.local_port, ip2int(std::get<0>(cfg.payload[0])), std::get<1>(cfg.payload[0]), cfg1.ndec, cfg1.await_locked), free_sdr_device), lo_ch(1024), voltage_gain(1.0)
     {
     }
 
